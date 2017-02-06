@@ -13,6 +13,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 public class Login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -60,6 +67,9 @@ public class Login extends AppCompatActivity {
 
                         // onLoginFailed(); // On complete call either onLoginSuccess or onLoginFailed
                         onLoginSuccess();
+                        //Checks login information with the server, will return true or false if the user has
+                        //an account
+                        //checkWithServer();
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -101,5 +111,41 @@ public class Login extends AppCompatActivity {
     {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+    }
+
+    public void checkWithServer()
+    {
+        URL url;
+        HttpURLConnection urlConnection = null;
+        try
+        {
+            url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email=EMAIL&password=ENCRYPTEDPASSWORD");
+            urlConnection = (HttpURLConnection) url.openConnection();
+            InputStream in = urlConnection.getInputStream();
+            InputStreamReader isr = new InputStreamReader(in);
+            int data = isr.read();
+            int counter = 0;
+            char[] charArray = null;
+            while (data != -1)
+            {
+                char current = (char) data;
+                charArray[counter] = current;
+                data = isr.read();
+                counter++;
+            }
+            String msg = charArray.toString();
+            Log.d("MESSAGE", msg);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if(urlConnection != null)
+            {
+                urlConnection.disconnect();
+            }
+        }
     }
 }
