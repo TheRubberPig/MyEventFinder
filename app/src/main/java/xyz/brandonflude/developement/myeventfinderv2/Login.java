@@ -14,11 +14,14 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Login extends AppCompatActivity {
 
@@ -28,6 +31,7 @@ public class Login extends AppCompatActivity {
     EditText _passwordText;
     Button _loginButton;
     TextView _signupLink;
+    String encryptedPassword = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,28 @@ public class Login extends AppCompatActivity {
         progressDialog.show();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
+        try
+        {
+            //Create Message digest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            //Add Password bytes to hash
+            md.update(password.getBytes());
+            //Get the hash's bytes
+            byte[] bytes = md.digest();
+            //This bytes[] has bytes in decimal format;
+            //Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i< bytes.length ;i++)
+            {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            //Get complete hashed password in hex format
+             encryptedPassword = sb.toString();
+        }
+        catch(NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
         // TODO: Implement your own authentication logic here.
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -69,7 +95,7 @@ public class Login extends AppCompatActivity {
                         onLoginSuccess();
                         //Checks login information with the server, will return true or false if the user has
                         //an account
-                        //checkWithServer();
+                        checkWithServer();
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -120,13 +146,20 @@ public class Login extends AppCompatActivity {
         try
         {
             url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email=EMAIL&password=ENCRYPTEDPASSWORD");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            InputStream in = urlConnection.getInputStream();
-            InputStreamReader isr = new InputStreamReader(in);
-            int data = isr.read();
-            int counter = 0;
-            char[] charArray = null;
-            while (data != -1)
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            String inputLine;
+            while((inputLine = in.readLine()) != null)
+            {
+                Log.v("DATA", inputLine);
+            }
+            in.close();
+            //urlConnection = (HttpURLConnection) url.openConnection();
+            //InputStream in = urlConnection.getInputStream();
+            //InputStreamReader isr = new InputStreamReader(in);
+            //int data = isr.read();
+            //int counter = 0;
+            //char[] charArray = null;
+            /*while (data != -1)
             {
                 char current = (char) data;
                 charArray[counter] = current;
@@ -134,7 +167,7 @@ public class Login extends AppCompatActivity {
                 counter++;
             }
             String msg = charArray.toString();
-            Log.d("MESSAGE", msg);
+            Log.d("MESSAGE", msg);*/
         }
         catch (Exception e)
         {
