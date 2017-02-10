@@ -11,6 +11,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
@@ -90,12 +98,14 @@ public class Login extends AppCompatActivity {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
+                        //Checks login information with the server, will return true or false if the user has
+                        //an account
+
+                        //TODO: FIX THIS
+                        //checkWithServer();
 
                         // onLoginFailed(); // On complete call either onLoginSuccess or onLoginFailed
                         onLoginSuccess();
-                        //Checks login information with the server, will return true or false if the user has
-                        //an account
-                        checkWithServer();
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -141,44 +151,24 @@ public class Login extends AppCompatActivity {
 
     public void checkWithServer()
     {
-        URL url;
-        HttpURLConnection urlConnection = null;
-        try
-        {
-            url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email=EMAIL&password=ENCRYPTEDPASSWORD");
-            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-            String inputLine;
-            while((inputLine = in.readLine()) != null)
-            {
-                Log.v("DATA", inputLine);
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email=EMAIL&password=ENCRYPTEDPASSWORD";
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        System.out.println(response.substring(0,500));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("That didn't work!");
             }
-            in.close();
-            //urlConnection = (HttpURLConnection) url.openConnection();
-            //InputStream in = urlConnection.getInputStream();
-            //InputStreamReader isr = new InputStreamReader(in);
-            //int data = isr.read();
-            //int counter = 0;
-            //char[] charArray = null;
-            /*while (data != -1)
-            {
-                char current = (char) data;
-                charArray[counter] = current;
-                data = isr.read();
-                counter++;
-            }
-            String msg = charArray.toString();
-            Log.d("MESSAGE", msg);*/
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            if(urlConnection != null)
-            {
-                urlConnection.disconnect();
-            }
-        }
+        });
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        queue.stop();
     }
 }
