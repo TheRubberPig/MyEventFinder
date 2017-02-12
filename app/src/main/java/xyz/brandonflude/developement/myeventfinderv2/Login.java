@@ -118,8 +118,9 @@ public class Login extends AppCompatActivity {
                         }
                         //If the result is false or null(server error) fail the login
                         //TODO: Tell the user why the login failed, and if statement isn't being triggered correctly
-                        if(result == "false" || result == null)
+                        if(result.equals("false") || result == null)
                         {
+
                             //If the users entered details is incorrect fail the login attempt
                             onLoginFailed();
                         }
