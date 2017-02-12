@@ -2,6 +2,7 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,9 +28,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ExecutionException;
 
 public class Login extends AppCompatActivity {
 
@@ -101,11 +104,32 @@ public class Login extends AppCompatActivity {
                         //Checks login information with the server, will return true or false if the user has
                         //an account
 
-                        //TODO: FIX THIS
-                        //checkWithServer();
+                        //Stores text from the server
+                        String result = "";
+                        try {
+                            //.get() returns the string and not the activity (which is what we want)
+                            result = new GetData().execute().get();
 
-                        // onLoginFailed(); // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
+                            //Catch any errors here
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                        //If the result is false or null(server error) fail the login
+                        //TODO: Tell the user why the login failed, and if statement isn't being triggered correctly
+                        if(result == "false" || result == null)
+                        {
+                            //If the users entered details is incorrect fail the login attempt
+                            onLoginFailed();
+                        }
+                        //Else log the user in
+                        else
+                        {
+                            //If the users details are correct log them in
+                            onLoginSuccess();
+                            progressDialog.dismiss();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -149,26 +173,56 @@ public class Login extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void checkWithServer()
-    {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email=EMAIL&password=ENCRYPTEDPASSWORD";
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        System.out.println(response.substring(0,500));
+    //This sets up a second thread to connect to the server in the background and it returns the result as a string
+    class GetData extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            //Sets up the connection and result
+            HttpURLConnection urlConnection = null;
+            String result = "";
+            try {
+                //Connects to the server using the users details (Password is encrypted before hand)
+                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ _emailText +"&password=" +encryptedPassword);
+                //Opens the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                //Makes sure the server is running and accepting connections
+                int code = urlConnection.getResponseCode();
+
+                //If the server is up read the text.
+                if(code==200){
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    if (in != null) {
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+                        String line = "";
+
+                        //While the reader is not null store in result (For us it should always only be one word)
+                        while ((line = bufferedReader.readLine()) != null)
+                            result += line;
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                System.out.println("That didn't work!");
+                    //Close the input stream.
+                    in.close();
+                }
+
+                //Return the result
+                return result;
+
+                //Catch errors if something unexpected happens
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
-// Add the request to the RequestQueue.
-        queue.add(stringRequest);
-        queue.stop();
+
+            //Close the connection
+            finally {
+                urlConnection.disconnect();
+            }
+
+            //Returns null if unsuccessful
+            return result;
+
+        }
     }
 }
