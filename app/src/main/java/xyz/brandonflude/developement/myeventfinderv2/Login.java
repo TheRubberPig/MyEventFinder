@@ -13,13 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
@@ -43,6 +36,7 @@ public class Login extends AppCompatActivity {
     Button _loginButton;
     TextView _signupLink;
     String encryptedPassword = null;
+    String email = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +67,7 @@ public class Login extends AppCompatActivity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
-        String email = _emailText.getText().toString();
+        email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
         try
         {
@@ -118,7 +112,7 @@ public class Login extends AppCompatActivity {
                         }
                         //If the result is false or null(server error) fail the login
                         //TODO: Tell the user why the login failed, and if statement isn't being triggered correctly
-                        if(result.equals("false") || result == null)
+                        if(result.equals("false") || result.equals(null))
                         {
 
                             //If the users entered details is incorrect fail the login attempt
@@ -184,7 +178,7 @@ public class Login extends AppCompatActivity {
             String result = "";
             try {
                 //Connects to the server using the users details (Password is encrypted before hand)
-                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ _emailText +"&password=" +encryptedPassword);
+                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
 
