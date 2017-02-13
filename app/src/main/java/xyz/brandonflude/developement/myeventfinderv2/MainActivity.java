@@ -11,13 +11,21 @@ import android.widget.Toast;
 
 import com.squareup.timessquare.CalendarPickerView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
 
     CalendarPickerView calendar;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -45,6 +53,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void checkData()
     {
-        
+
+    }
+
+    public void showRelevantDates()
+    {
+        List<Date> userDates = new ArrayList<>();
+
+        calendar.highlightDates(userDates);
+
+        /*for (Date currDate : userDates)
+        {
+            calendar.highlightDates();
+        }*/
+
+        String dateString = "Dec 12, 2017 9:20 PM";
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
+        try {
+            Date thisTime = format.parse(dateString);
+
+        }
+        catch(ParseException pe)
+        {
+
+        }
+
     }
 }
