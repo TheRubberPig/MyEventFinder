@@ -37,6 +37,7 @@ public class Login extends AppCompatActivity {
     TextView _signupLink;
     String encryptedPassword = null;
     String email = "";
+    String userID = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -123,6 +124,7 @@ public class Login extends AppCompatActivity {
                         {
                             //If the users details are correct log them in
                             onLoginSuccess();
+                            userID = result;
                             progressDialog.dismiss();
                         }
                         progressDialog.dismiss();
