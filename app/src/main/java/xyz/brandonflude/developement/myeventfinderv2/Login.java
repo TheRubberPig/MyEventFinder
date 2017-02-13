@@ -112,7 +112,7 @@ public class Login extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         //If the result is false or null(server error) fail the login
-                        //TODO: Tell the user why the login failed, and if statement isn't being triggered correctly
+                        //TODO: Tell the user why the login failed
                         if(result.equals("false") || result.equals(null))
                         {
 

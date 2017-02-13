@@ -2,6 +2,7 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,6 +14,18 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.ExecutionException;
+
 public class Signup extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
@@ -22,6 +35,9 @@ public class Signup extends AppCompatActivity {
     EditText _reEnterPasswordText;
     Button _signupButton;
     TextView _loginLink;
+    String email = "";
+    String password = "";
+    String encryptedPassword = "";
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +70,23 @@ public class Signup extends AppCompatActivity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        email = _emailText.getText().toString();
+        password = _passwordText.getText().toString();
+        try
+        {
+            MessageDigest md5 = MessageDigest.getInstance("md5");
+            md5.update(password.getBytes());
+            byte[] bytes = md5.digest();
+            StringBuilder sb = new StringBuilder();
+            for(int i = 0; i<bytes.length; i++)
+            {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            encryptedPassword = sb.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         String reEnterPassword = _reEnterPasswordText.getText().toString();
         // TODO: Implement your own signup logic here.
         new android.os.Handler().postDelayed(
@@ -63,8 +94,25 @@ public class Signup extends AppCompatActivity {
                     public void run() {
                         // On complete call either onSignupSuccess or onSignupFailed
                         // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
+                        String result = "";
+                        try {
+                            result = new GetData().execute().get();
+                        }
+                        catch(InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        catch (ExecutionException e) {
+                              e.printStackTrace();
+                        }
+
+                        if(result.equals("true"))
+                        {
+                            onSignupSuccess();
+                        }
+                        else
+                        {
+                            onSignupFailed();
+                        }
                         progressDialog.dismiss();
                     }
                 }, 3000);
@@ -109,5 +157,57 @@ public class Signup extends AppCompatActivity {
         }
 
         return valid;
+    }
+
+    class GetData extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            //Sets up the connection and result
+            HttpURLConnection urlConnection = null;
+            String result = "";
+            try {
+                //Connects to the server using the users details (Password is encrypted before hand)
+                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
+                //Opens the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                //Makes sure the server is running and accepting connections
+                int code = urlConnection.getResponseCode();
+
+                //If the server is up read the text.
+                if(code==200){
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    if (in != null) {
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+                        String line = "";
+
+                        //While the reader is not null store in result (For us it should always only be one word)
+                        while ((line = bufferedReader.readLine()) != null)
+                            result += line;
+                    }
+                    //Close the input stream.
+                    in.close();
+                }
+
+                //Return the result
+                return result;
+
+                //Catch errors if something unexpected happens
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //Close the connection
+            finally {
+                urlConnection.disconnect();
+            }
+
+            //Returns null if unsuccessful
+            return result;
+
+        }
     }
 }
