@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,6 +27,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
+import static android.app.Activity.RESULT_OK;
+
 public class Signup extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
@@ -38,10 +41,14 @@ public class Signup extends AppCompatActivity {
     String email = "";
     String password = "";
     String encryptedPassword = "";
+    String reEnterPassword = "";
+    String encryptedReEnter = "";
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
         _emailText = (EditText) findViewById(R.id.input_email);
         _passwordText = (EditText) findViewById(R.id.input_password);
         _reEnterPasswordText =  (EditText)findViewById(R.id.input_reEnterPassword);
@@ -72,56 +79,79 @@ public class Signup extends AppCompatActivity {
         progressDialog.show();
         email = _emailText.getText().toString();
         password = _passwordText.getText().toString();
+        reEnterPassword = _reEnterPasswordText.getText().toString();
         try
         {
-            MessageDigest md5 = MessageDigest.getInstance("md5");
+            //Create MessageDigest for MD5
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            //MessageDigest md = MessageDigest.getInstance("MD5");
+            //Get the individual bytes of the password
             md5.update(password.getBytes());
+            //md.update(reEnterPassword.getBytes());
+            //Get the hash's bytes
             byte[] bytes = md5.digest();
+            //byte[] bytes2 = md.digest();
+            //Convert to hex format
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i<bytes.length; i++)
             {
                 sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+                //sb.append(Integer.toString((bytes2[i] & 0xff) + 0x100,16).substring(1));
             }
+            //Get the complete password in hex format
             encryptedPassword = sb.toString();
+           // encryptedReEnter = sb.toString();
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        String reEnterPassword = _reEnterPasswordText.getText().toString();
         // TODO: Implement your own signup logic here.
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
+                        //Checks login information with the server, will return true or false if the user has
+                        //an account
+
+                        //Stores text from the server
                         String result = "";
                         try {
+                            //.get() returns the string and not the activity (which is what we want)
                             result = new GetData().execute().get();
-                        }
-                        catch(InterruptedException e) {
+
+                            //Catch any errors here
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
                             e.printStackTrace();
                         }
-                        catch (ExecutionException e) {
-                              e.printStackTrace();
-                        }
-
-                        if(result.equals("true"))
+                        //If the result is false or null(server error) fail the login
+                        //TODO: Tell the user why the login failed
+                        if(result.equals("false") || result.equals(null))
                         {
-                            onSignupSuccess();
+
+                            //If the users entered details is incorrect fail the login attempt
+                            onSignupFailed();
                         }
+                        //Else log the user in
                         else
                         {
-                            onSignupFailed();
+                            //If the users details are correct log them in
+                            onSignupSuccess();
+                            progressDialog.dismiss();
                         }
                         progressDialog.dismiss();
                     }
                 }, 3000);
     }
+    @Override
+    public void onBackPressed() {
+        // Disable going back to the MainActivity
+        moveTaskToBack(true);
+    }
 
     public void onSignupSuccess() {
         _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
-        finish();
+        loadMainPage();
     }
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
@@ -159,8 +189,13 @@ public class Signup extends AppCompatActivity {
         return valid;
     }
 
-    class GetData extends AsyncTask<String, Void, String> {
+    public void loadMainPage()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 
+    class GetData extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             //Sets up the connection and result
@@ -168,7 +203,8 @@ public class Signup extends AppCompatActivity {
             String result = "";
             try {
                 //Connects to the server using the users details (Password is encrypted before hand)
-                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
+                //TODO: Let the user create a username
+                URL url = new URL("http://calendar.brandonflude.xyz/app/services/signup.php?auth=7awee81inro39mzupu8v&username=test&email="+ email +"&password=" +encryptedPassword);
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
 
