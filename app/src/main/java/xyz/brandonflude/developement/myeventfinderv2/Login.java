@@ -2,8 +2,11 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.content.Intent;
@@ -38,9 +41,16 @@ public class Login extends AppCompatActivity {
     String encryptedPassword = null;
     String email = "";
     String userID = "";
+    String username = "";
+    String encryptedKey = "";
+    String loginResponseString = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        // Straight away see if the user has already signed in
+        checkCookie();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         _emailText = (EditText) findViewById(R.id.input_email);
@@ -48,6 +58,16 @@ public class Login extends AppCompatActivity {
         _loginButton = (Button) findViewById(R.id.btn_login);
         _signupLink = (TextView) findViewById(R.id.link_signup);
     }
+
+    public void checkCookie()
+    {
+        // See if the user has an existing key saved, fetch the key
+        SharedPreferences settings = getSharedPreferences("MyEventFinderAuthKeys", 0);
+        String savedKey = settings.getString("keys", encryptedKey).toString();
+
+        // TODO: Check this key against the database.
+    }
+
     public void buttonClick(View view)
     {
         login();
@@ -115,7 +135,6 @@ public class Login extends AppCompatActivity {
                         //TODO: Tell the user why the login failed
                         if(result.equals("false") || result.equals(""))
                         {
-
                             //If the users entered details is incorrect fail the login attempt
                             onLoginFailed();
                         }
@@ -123,8 +142,21 @@ public class Login extends AppCompatActivity {
                         else
                         {
                             //If the users details are correct log them in
+
+                            loginResponseString = result;
+                            String[] response = loginResponseString.split(",");
+                            userID = response[0];
+                            username = response[1];
+                            encryptedKey = response[2];
+
+                            // Save the user's encryptedKey to device
+                            SharedPreferences keys = getSharedPreferences("MyEventFinderAuthKeys", 0);
+                            SharedPreferences.Editor editor = keys.edit();
+                            editor.putString("keys", encryptedKey);
+                            editor.commit();
+
                             onLoginSuccess();
-                            userID = result;
+
                             progressDialog.dismiss();
                         }
                         progressDialog.dismiss();
@@ -142,7 +174,7 @@ public class Login extends AppCompatActivity {
         loadMainPage();
     }
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Login Failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
     }
     public boolean validate() {
@@ -167,7 +199,7 @@ public class Login extends AppCompatActivity {
     public void loadMainPage()
     {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("username", "");
+        intent.putExtra("username", username);
         startActivity(intent);
     }
 

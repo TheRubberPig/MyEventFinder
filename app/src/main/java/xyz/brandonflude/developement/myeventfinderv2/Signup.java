@@ -72,7 +72,7 @@ public class Signup extends AppCompatActivity {
 
     public void signup() {
         if (!validate()) {
-            onSignupFailed();
+            onSignupFailed("Bad Server Response");
             return;
         }
         _signupButton.setEnabled(false);
@@ -130,18 +130,27 @@ public class Signup extends AppCompatActivity {
                         }
                         //If the result is false or null(server error) fail the login
                         //TODO: Tell the user why the login failed
-                        if(result.equals("false") || result.equals(null))
-                        {
 
-                            //If the users entered details is incorrect fail the login attempt
-                            onSignupFailed();
-                        }
-                        //Else log the user in
-                        else
+                        switch(result.toString())
                         {
-                            //If the users details are correct log them in
-                            onSignupSuccess();
-                            progressDialog.dismiss();
+                            // First 6 cases for bad signup, final one is for true response
+                            case "false":
+                            case "null":
+                            default:
+                                onSignupFailed("Bad Server Response");
+                                break;
+                            case "username in use":
+                                onSignupFailed("Username in Use");
+                                break;
+                            case "email in use":
+                                onSignupFailed("Email in Use");
+                                break;
+                            case "email is not valid":
+                                onSignupFailed("Email Address is Invalid");
+                                break;
+                            case "true":
+                                onSignupSuccess();
+                                break;
                         }
                         progressDialog.dismiss();
                     }
@@ -157,8 +166,8 @@ public class Signup extends AppCompatActivity {
         _signupButton.setEnabled(true);
         loadMainPage();
     }
-    public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+    public void onSignupFailed(String error) {
+        Toast.makeText(getBaseContext(), "Signup Failed - " + error, Toast.LENGTH_LONG).show();
         _signupButton.setEnabled(true);
     }
 
@@ -195,7 +204,7 @@ public class Signup extends AppCompatActivity {
 
     public void loadMainPage()
     {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, Login.class);
         intent.putExtra("username", username);
         startActivity(intent);
     }
