@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CalendarView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.timessquare.CalendarPickerView;
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
+    Bundle extras;
 
     CalendarPickerView calendar;
     @Override
@@ -28,7 +30,16 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        TextView user = (TextView) findViewById(R.id.show_username);
+        extras = getIntent().getExtras();
+        if(extras.getString("username").equals(""))
+        {
+            user.setText("No username found");
+        }
+        else
+        {
+            user.setText("Welcome " + extras.getString("username"));
+        }
         Calendar nextYear = Calendar.getInstance();
         nextYear.add(Calendar.YEAR, 1);
 

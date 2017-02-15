@@ -113,7 +113,7 @@ public class Login extends AppCompatActivity {
                         }
                         //If the result is false or null(server error) fail the login
                         //TODO: Tell the user why the login failed
-                        if(result.equals("false") || result.equals(null))
+                        if(result.equals("false") || result.equals(""))
                         {
 
                             //If the users entered details is incorrect fail the login attempt
@@ -155,8 +155,8 @@ public class Login extends AppCompatActivity {
         } else {
             _emailText.setError(null);
         }
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 4 || password.length() > 20) {
+            _passwordText.setError("between 4 and 20 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
@@ -167,6 +167,7 @@ public class Login extends AppCompatActivity {
     public void loadMainPage()
     {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("username", "");
         startActivity(intent);
     }
 

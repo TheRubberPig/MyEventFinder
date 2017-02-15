@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,6 +34,7 @@ public class Signup extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
 
+    EditText _username;
     EditText _emailText;
     EditText _passwordText;
     EditText _reEnterPasswordText;
@@ -43,17 +45,18 @@ public class Signup extends AppCompatActivity {
     String encryptedPassword = "";
     String reEnterPassword = "";
     String encryptedReEnter = "";
+    String username = "";
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-
         _emailText = (EditText) findViewById(R.id.input_email);
         _passwordText = (EditText) findViewById(R.id.input_password);
         _reEnterPasswordText =  (EditText)findViewById(R.id.input_reEnterPassword);
         _signupButton = (Button) findViewById(R.id.btn_signup);
         _loginLink = (TextView) findViewById(R.id.link_signup);
+        _username = (EditText) findViewById(R.id.input_username);
     }
 
     public void buttonClick(View view)
@@ -80,6 +83,7 @@ public class Signup extends AppCompatActivity {
         email = _emailText.getText().toString();
         password = _passwordText.getText().toString();
         reEnterPassword = _reEnterPasswordText.getText().toString();
+        username = _username.getText().toString();
         try
         {
             //Create MessageDigest for MD5
@@ -192,6 +196,7 @@ public class Signup extends AppCompatActivity {
     public void loadMainPage()
     {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("username", username);
         startActivity(intent);
     }
 
@@ -204,7 +209,7 @@ public class Signup extends AppCompatActivity {
             try {
                 //Connects to the server using the users details (Password is encrypted before hand)
                 //TODO: Let the user create a username
-                URL url = new URL("http://calendar.brandonflude.xyz/app/services/signup.php?auth=7awee81inro39mzupu8v&username=test&email="+ email +"&password=" +encryptedPassword);
+                URL url = new URL("http://calendar.brandonflude.xyz/app/services/signup.php?auth=7awee81inro39mzupu8v&username=" + username +"&email="+ email +"&password=" +encryptedPassword);
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
 

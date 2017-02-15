@@ -15,6 +15,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:id = "@+id/show_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"/>
+
         <com.squareup.timessquare.CalendarPickerView
             android:id = "@+id/calendar_grid"
             android:layout_width="match_parent"
