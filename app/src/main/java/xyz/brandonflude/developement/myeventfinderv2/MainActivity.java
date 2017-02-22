@@ -62,9 +62,10 @@ public class MainActivity extends AppCompatActivity
         startActivity(i);
     }
 
-    public void checkData()
+    public void searchTeams()
     {
-
+        Intent i = new Intent(getApplicationContext(), SearchTeams.class);
+        startActivity(i);
     }
 
     public void showRelevantDates()

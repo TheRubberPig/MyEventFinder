@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutionException;
 
 import static android.app.Activity.RESULT_OK;
 
-public class Signup extends AppCompatActivity {
+public class  Signup extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
 
@@ -217,7 +217,6 @@ public class Signup extends AppCompatActivity {
             String result = "";
             try {
                 //Connects to the server using the users details (Password is encrypted before hand)
-                //TODO: Let the user create a username
                 URL url = new URL("http://calendar.brandonflude.xyz/app/services/signup.php?auth=7awee81inro39mzupu8v&username=" + username +"&email="+ email +"&password=" +encryptedPassword);
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();

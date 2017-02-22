@@ -51,6 +51,13 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         String url = "Add Brandons URL here";
     }
 
+    StringRequest stringRequest = new StringRequest(url,new Response.Listener<String>() {
+        @Override
+        public void onResponse(String Respose){
+            loading.dismiss();
+            showJSON(response);
+        }
+    });
     @Override
     public void onClick(View v){
         getData();
