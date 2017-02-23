@@ -28,24 +28,29 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
+import static android.R.attr.password;
 import static android.app.Activity.RESULT_OK;
 
 public class  Signup extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
 
+    //Accesses fields in xml
     EditText _username;
     EditText _emailText;
     EditText _passwordText;
     EditText _reEnterPasswordText;
     Button _signupButton;
     TextView _loginLink;
-    String email = "";
-    String password = "";
-    String encryptedPassword = "";
-    String reEnterPassword = "";
-    String encryptedReEnter = "";
+
+    //Have to be public to get passed into url for checking.
     String username = "";
+    String email = "";
+    String encryptedPassword = "";
+
+    //This probably needs using
+    String encryptedReEnter = "";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -59,57 +64,44 @@ public class  Signup extends AppCompatActivity {
         _username = (EditText) findViewById(R.id.input_username);
     }
 
+    //Call main signup logic
     public void buttonClick(View view)
     {
         signup();
     }
 
+    //Go back to the login page
     public void textClick(View view)
     {
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
     }
 
-    public void signup() {
-        if (!validate()) {
+    //Runs sign up logic
+    private void signup() {
+        //Gets variables needed for checking
+        email = _emailText.getText().toString();
+        String password = _passwordText.getText().toString();
+        String reEnterPassword = _reEnterPasswordText.getText().toString();
+
+        //If the passwords and email aren't valid fail the login
+        if (!validate(email, password, reEnterPassword)) {
             onSignupFailed("Bad Server Response");
             return;
         }
+
+        //Disable signup button and show a progress dialog box
         _signupButton.setEnabled(false);
         final ProgressDialog progressDialog = new ProgressDialog(Signup.this, R.style.AppTheme);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
-        email = _emailText.getText().toString();
-        password = _passwordText.getText().toString();
-        reEnterPassword = _reEnterPasswordText.getText().toString();
-        username = _username.getText().toString();
-        try
-        {
-            //Create MessageDigest for MD5
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            //MessageDigest md = MessageDigest.getInstance("MD5");
-            //Get the individual bytes of the password
-            md5.update(password.getBytes());
-            //md.update(reEnterPassword.getBytes());
-            //Get the hash's bytes
-            byte[] bytes = md5.digest();
-            //byte[] bytes2 = md.digest();
-            //Convert to hex format
-            StringBuilder sb = new StringBuilder();
-            for(int i = 0; i<bytes.length; i++)
-            {
-                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-                //sb.append(Integer.toString((bytes2[i] & 0xff) + 0x100,16).substring(1));
-            }
-            //Get the complete password in hex format
-            encryptedPassword = sb.toString();
-           // encryptedReEnter = sb.toString();
 
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        // TODO: Implement your own signup logic here.
+        //Get the username and encrypt the password with MD5
+        username = _username.getText().toString();
+        encryptWithMD5(password);
+
+        //Start a new thread to send the information to the server
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -128,9 +120,8 @@ public class  Signup extends AppCompatActivity {
                         } catch (ExecutionException e) {
                             e.printStackTrace();
                         }
-                        //If the result is false or null(server error) fail the login
-                        //TODO: Tell the user why the login failed
 
+                        //If the result is false or null(server error) fail the login
                         switch(result.toString())
                         {
                             // First 6 cases for bad signup, final one is for true response
@@ -152,30 +143,36 @@ public class  Signup extends AppCompatActivity {
                                 onSignupSuccess();
                                 break;
                         }
+
+                        //Dismiss the progress dialog
                         progressDialog.dismiss();
                     }
                 }, 3000);
     }
+
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
         moveTaskToBack(true);
     }
 
+    //Load main page on successful signup
     public void onSignupSuccess() {
         _signupButton.setEnabled(true);
         loadMainPage();
     }
+
+    //Fail the sign up and say why
     public void onSignupFailed(String error) {
         Toast.makeText(getBaseContext(), "Signup Failed - " + error, Toast.LENGTH_LONG).show();
         _signupButton.setEnabled(true);
     }
 
-    public boolean validate() {
+    //Validates the passwords and email before trying to sign up
+    public boolean validate(String email, String password, String reEnterPassword) {
         boolean valid = true;
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        String reEnterPassword = _reEnterPasswordText.getText().toString();
+
+        //Checks if the email is empty and conforms to usual patterns
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _emailText.setError("enter a valid email address");
             valid = false;
@@ -184,29 +181,63 @@ public class  Signup extends AppCompatActivity {
             _emailText.setError(null);
 
         }
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
 
-            _passwordText.setError("between 4 and 10 alphanumeric characters");
+        //Checks if the password is empty and a certain length
+        if (password.isEmpty() || password.length() < 4 || password.length() > 20) {
+
+            _passwordText.setError("between 4 and 20 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
         }
 
-        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 4 || reEnterPassword.length() > 10 || !(reEnterPassword.equals(password))) {
-            _reEnterPasswordText.setError("Password Do not match");
+        //Checks if the passwords match
+        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 4 || reEnterPassword.length() > 20 || !(reEnterPassword.equals(password))) {
+            _reEnterPasswordText.setError("Passwords Do not match");
             valid = false;
         } else {
             _reEnterPasswordText.setError(null);
         }
 
+        //Return result
         return valid;
     }
 
+    //Load the main page
     public void loadMainPage()
     {
-        Intent intent = new Intent(this, Login.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("username", username);
         startActivity(intent);
+    }
+
+    //Encrypt Password with MD5
+    private void encryptWithMD5(String password){
+        try
+        {
+            //Create MessageDigest for MD5
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            //MessageDigest md = MessageDigest.getInstance("MD5");
+            //Get the individual bytes of the password
+            md5.update(password.getBytes());
+            //md.update(reEnterPassword.getBytes());
+            //Get the hash's bytes
+            byte[] bytes = md5.digest();
+            //byte[] bytes2 = md.digest();
+            //Convert to hex format
+            StringBuilder sb = new StringBuilder();
+            for(int i = 0; i<bytes.length; i++)
+            {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+                //sb.append(Integer.toString((bytes2[i] & 0xff) + 0x100,16).substring(1));
+            }
+            //Get the complete password in hex format
+            encryptedPassword = sb.toString();
+            // encryptedReEnter = sb.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 
     class GetData extends AsyncTask<String, Void, String> {

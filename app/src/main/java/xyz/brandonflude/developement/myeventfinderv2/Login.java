@@ -30,6 +30,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 
+import static android.R.attr.password;
+
 public class Login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -40,8 +42,7 @@ public class Login extends AppCompatActivity {
     TextView _signupLink;
     String encryptedPassword = null;
     String email = "";
-    String userID = "";
-    String username = "";
+    //String username = "";
     String encryptedKey = "";
     String loginResponseString = "";
 
@@ -59,6 +60,7 @@ public class Login extends AppCompatActivity {
         _signupLink = (TextView) findViewById(R.id.link_signup);
     }
 
+    //This will log people in automatically if they have logged in correctly before
     public void checkCookie()
     {
         // See if the user has an existing key saved, fetch the key
@@ -68,51 +70,38 @@ public class Login extends AppCompatActivity {
         // TODO: Check this key against the database.
     }
 
-    public void buttonClick(View view)
-    {
-        login();
-    }
+    //Method called when login button is clicked
+    public void buttonClick(View view) {login();}
 
+    //Opens the signup page when the text is clicked
     public void textClick(View view)
     {
         Intent intent = new Intent(this, Signup.class);
         startActivity(intent);
     }
-    public void login() {
-        if (!validate()) {
+
+    //Main method for checking login information
+    private void login() {
+        //Get password and email
+        String password = _passwordText.getText().toString();
+        email = _emailText.getText().toString();
+        //Calls validate method to make sure the email and password conform to standards
+        if (!validate(email, password)) {
+            //If the validate method comes back false fail the login
             onLoginFailed();
             return;
         }
+        //Disable the login button and open a progress dialog
         _loginButton.setEnabled(false);
         final ProgressDialog progressDialog = new ProgressDialog(Login.this, R.style.AppTheme);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
-        email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        try
-        {
-            //Create Message digest instance for MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            //Add Password bytes to hash
-            md.update(password.getBytes());
-            //Get the hash's bytes
-            byte[] bytes = md.digest();
-            //This bytes[] has bytes in decimal format;
-            //Convert it to hexadecimal format
-            StringBuilder sb = new StringBuilder();
-            for(int i=0; i< bytes.length ;i++)
-            {
-                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            //Get complete hashed password in hex format
-             encryptedPassword = sb.toString();
-        }
-        catch(NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-        }
-        // TODO: Implement your own authentication logic here.
+
+        //Encrypt the password with MD5
+        convertToMD5(password);
+
+        //Strart a new thread to check login details against the server
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -145,8 +134,8 @@ public class Login extends AppCompatActivity {
 
                             loginResponseString = result;
                             String[] response = loginResponseString.split(",");
-                            userID = response[0];
-                            username = response[1];
+                            String userID = response[0];
+                            String username = response[1];
                             encryptedKey = response[2];
 
                             // Save the user's encryptedKey to device
@@ -155,7 +144,7 @@ public class Login extends AppCompatActivity {
                             editor.putString("keys", encryptedKey);
                             editor.commit();
 
-                            onLoginSuccess();
+                            onLoginSuccess(username);
 
                             progressDialog.dismiss();
                         }
@@ -163,32 +152,40 @@ public class Login extends AppCompatActivity {
                     }
                 }, 3000);
     }
+
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess() {
+    //If the login was successful load the main page
+    private void onLoginSuccess(String username) {
         _loginButton.setEnabled(true);
-        loadMainPage();
+        loadMainPage(username);
     }
-    public void onLoginFailed() {
+
+    //Tell the user the login failed
+    private void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login Failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
     }
-    public boolean validate() {
+
+    //Validates the email and password
+    private boolean validate(String email, String password) {
         boolean valid = true;
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+
+        //Checks that the email isn't empty and conforms to regular email patterns
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _emailText.setError("enter a valid email address");
             valid = false;
         } else {
             _emailText.setError(null);
         }
+
+        //Checks that the password isn't empty and is between a certain length
         if (password.isEmpty() || password.length() < 4 || password.length() > 20) {
-            _passwordText.setError("between 4 and 20 alphanumeric characters");
+            _passwordText.setError("Please enter a password between 4 and 20 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
@@ -196,11 +193,39 @@ public class Login extends AppCompatActivity {
         return valid;
     }
 
-    public void loadMainPage()
+    //Load the main page
+    private void loadMainPage(String username)
     {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("username", username);
         startActivity(intent);
+    }
+
+    //Converts a string into MD5
+    private void convertToMD5(String password)
+    {
+        try
+        {
+            //Create Message digest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            //Add Password bytes to hash
+            md.update(password.getBytes());
+            //Get the hash's bytes
+            byte[] bytes = md.digest();
+            //This bytes[] has bytes in decimal format;
+            //Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i< bytes.length ;i++)
+            {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            //Get complete hashed password in hex format
+            encryptedPassword = sb.toString();
+        }
+        catch(NoSuchAlgorithmException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     //This sets up a second thread to connect to the server in the background and it returns the result as a string

@@ -20,6 +20,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static android.R.id.text1;
+
 public class SearchTeams extends AppCompatActivity implements View.OnClickListener{
 
     private EditText editTextId;
@@ -47,17 +49,46 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
             return;
         }
         loading = ProgressDialog.show(this, "Please wait...", "Fetching...", false, false);
+        String searchTerm = editTextId.getText().toString().trim();
+        String url = "http://calendar.brandonflude.xyz/app/services/getTeams.php?team=" + searchTerm;
+        StringRequest stringRequest = new StringRequest(url,new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response){
+                loading.dismiss();
+                try {
+                    showJSON(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener(){
+           @Override
+            public void onErrorResponse(VolleyError error) {
+              Toast.makeText(SearchTeams.this, error.getMessage().toString(), Toast.LENGTH_LONG).show();
+           }
+         });
 
-        String url = "Add Brandons URL here";
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
     }
 
-    StringRequest stringRequest = new StringRequest(url,new Response.Listener<String>() {
-        @Override
-        public void onResponse(String Respose){
-            loading.dismiss();
-            showJSON(response);
+    private void showJSON(String response) throws JSONException {
+        String id = "";
+        String teamName = "";
+        String logoURL = "";
+        String league = "";
+        JSONArray jsonArray = new JSONArray(response);
+        //JSONArray result = jsonObject.getJSONArray("result");
+        for(int i = 0; i < jsonArray.length(); i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            id = jsonObject.getString("team_id");
+            teamName = jsonObject.getString("team_nm");
+            logoURL = jsonObject.getString("team_logo_url");
+            league = jsonObject.getString("league_nm");
         }
-    });
+        textViewResult.setText("ID:\t"+id+"\nTeam Name:\t" + teamName+"\nLeague:\t"+ league);
+    }
+
     @Override
     public void onClick(View v){
         getData();

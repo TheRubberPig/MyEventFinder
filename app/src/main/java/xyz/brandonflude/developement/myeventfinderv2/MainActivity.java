@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(i);
     }
 
-    public void searchTeams()
+    public void searchTeams(View view)
     {
         Intent i = new Intent(getApplicationContext(), SearchTeams.class);
         startActivity(i);
