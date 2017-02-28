@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-//import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +42,6 @@ import java.util.List;
 
 import static android.R.id.list;
 import static android.R.id.text1;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.logoURL;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.teamLogo;
 
 public class SearchTeams extends AppCompatActivity implements View.OnClickListener{
@@ -116,7 +114,8 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         }
         showResults = (ListView) findViewById(R.id.searchResults);
         showResults.setAdapter(new ListAdapter(this,jsonObjects));
-        /*showResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        showResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -124,12 +123,11 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
 
 
                 //TODO: Make a new activity to show upcoming events/Pass ID into new activity
-                //Start the recipe activity for the recipe we chose.
-                /*Intent i = new Intent(getBaseContext(), RecipeActivity.class);
-                i.putExtra("recipe-id", r.getId());
+                Intent i = new Intent(getBaseContext(), TeamInformation.class);
+                i.putExtra("teamID", id);
                 startActivity(i);
             }
-        });*/
+        });
     }
 
     @Override

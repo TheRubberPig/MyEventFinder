@@ -21,7 +21,8 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".Signup" />
         <activity android:name=".DateInformation" />
-        <activity android:name=".SearchTeams"></activity>
+        <activity android:name=".SearchTeams" />
+        <activity android:name=".TeamInformation"></activity>
     </application>
 
 </manifest>
