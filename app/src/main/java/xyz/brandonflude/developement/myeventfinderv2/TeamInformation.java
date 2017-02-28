@@ -2,6 +2,7 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class TeamInformation extends AppCompatActivity {
     Bundle extras;
@@ -14,5 +15,7 @@ public class TeamInformation extends AppCompatActivity {
 
         extras = getIntent().getExtras();
         teamID = extras.getString("teamID");
+        Toast toast = Toast.makeText(this, teamID, Toast.LENGTH_LONG);
+        toast.show();
     }
 }

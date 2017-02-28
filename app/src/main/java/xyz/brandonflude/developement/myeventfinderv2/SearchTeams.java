@@ -42,6 +42,7 @@ import java.util.List;
 
 import static android.R.id.list;
 import static android.R.id.text1;
+import static android.media.CamcorderProfile.get;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.teamLogo;
 
 public class SearchTeams extends AppCompatActivity implements View.OnClickListener{
@@ -102,7 +103,7 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         String logoURL = "";
         String league = "";
         JSONArray jsonArray = new JSONArray(response);
-        List<JSONObject> jsonObjects = new ArrayList<>();
+        final List<JSONObject> jsonObjects = new ArrayList<>();
         //JSONArray result = jsonObject.getJSONArray("result");
         for(int i = 0; i < jsonArray.length(); i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -118,13 +119,16 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         showResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                Context context = getApplicationContext();
                 //TODO: Get position of the team we want to load
-
-
+                JSONObject pos = (JSONObject) showResults.getItemAtPosition(position);
                 //TODO: Make a new activity to show upcoming events/Pass ID into new activity
                 Intent i = new Intent(getBaseContext(), TeamInformation.class);
-                i.putExtra("teamID", id);
+                try {
+                    i.putExtra("teamID", pos.getString("team_id"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 startActivity(i);
             }
         });
@@ -175,6 +179,21 @@ class ListAdapter extends ArrayAdapter<JSONObject> {
             e.printStackTrace();
         }
         return itemView;
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+    @Override
+    public JSONObject getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
     }
 }
 
