@@ -68,14 +68,18 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
     }
 
     private void getData(){
+        //Gets the users search term
         String id = editTextId.getText().toString().trim();
+        //If null error
         if(id.equals("")){
             Toast.makeText(this, "Please enter a search term", Toast.LENGTH_LONG).show();
             return;
         }
+        //Show a loading dialog while data from the server is being downloaded
         loading = ProgressDialog.show(this, "Please wait...", "Fetching...", false, false);
         String searchTerm = editTextId.getText().toString().trim();
         String url = "http://calendar.brandonflude.xyz/app/services/getTeams.php?team=" + searchTerm;
+        //Get a response from the server
         StringRequest stringRequest = new StringRequest(url,new Response.Listener<String>() {
             @Override
             public void onResponse(String response){
@@ -98,13 +102,16 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
     }
 
     private void showJSON(String response) throws JSONException {
+        //Sets up initial variables
         String id = "";
         String teamName = "";
         String logoURL = "";
         String league = "";
+        //Creates an array of json data
         JSONArray jsonArray = new JSONArray(response);
+        //Makes a list of JSON Objects
         final List<JSONObject> jsonObjects = new ArrayList<>();
-        //JSONArray result = jsonObject.getJSONArray("result");
+        //Loop through the JSON Array to get each object
         for(int i = 0; i < jsonArray.length(); i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             id = jsonObject.getString("team_id");
@@ -113,19 +120,24 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
             league = jsonObject.getString("league_nm");
             jsonObjects.add(jsonObject);
         }
+
+        //Sets the ListView to show JSON Results
         showResults = (ListView) findViewById(R.id.searchResults);
         showResults.setAdapter(new ListAdapter(this,jsonObjects));
 
+        //Makes the list respond to clicks
         showResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Context context = getApplicationContext();
-                //TODO: Get position of the team we want to load
+
+                //Gets the position of the item in the list
                 JSONObject pos = (JSONObject) showResults.getItemAtPosition(position);
-                //TODO: Make a new activity to show upcoming events/Pass ID into new activity
+
+                //Open up new page with details about the selected team.
                 Intent i = new Intent(getBaseContext(), TeamInformation.class);
                 try {
                     i.putExtra("teamID", pos.getString("team_id"));
+                    i.putExtra("imgURL", pos.getString("team_logo_url"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -144,27 +156,28 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
  * Created by Dave on 24/02/2017.
  */
 
+//Adapter to converts JSON Objects into a List
 class ListAdapter extends ArrayAdapter<JSONObject> {
     int vg;
     List<JSONObject> list;
     Context context;
 
+    //Sets up initial Variables
     public ListAdapter(Context context, List<JSONObject> list){
         super(context,R.layout.activity_search_teams_row,list);
         this.context = context;
-        this.vg = vg;
         this.list = list;
     }
+
+    //Gets the view for where the results will show
     public View getView(int position, View convertView, ViewGroup parent){
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View itemView = inflater.inflate(R.layout.activity_search_teams_row, parent, false);
-        //TextView teamID=(TextView)itemView.findViewById(R.id.teamID);
         TextView teamName=(TextView)itemView.findViewById(R.id.teamName);
         ImageView logoURL=(ImageView) itemView.findViewById(teamLogo);
         TextView textLeague = (TextView)itemView.findViewById(R.id.leagueName);
 
         try{
-            //teamID.setText(list.get(position).getString("team_id"));
             teamName.setText(list.get(position).getString("team_nm"));
             URL imgURL = new URL(list.get(position).getString("team_logo_url"));
             new DownloadImageTask((ImageView) itemView.findViewById(R.id.teamLogo))
