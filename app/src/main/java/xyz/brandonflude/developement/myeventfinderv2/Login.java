@@ -44,7 +44,9 @@ public class Login extends AppCompatActivity {
     String email = "";
     //String username = "";
     String encryptedKey = "";
+    String savedKey = "";
     String loginResponseString = "";
+    String authenticationResponseString = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,13 +63,60 @@ public class Login extends AppCompatActivity {
     }
 
     //This will log people in automatically if they have logged in correctly before
-    public void checkCookie()
-    {
+    public void checkCookie() {
         // See if the user has an existing key saved, fetch the key
         SharedPreferences settings = getSharedPreferences("MyEventFinderAuthKeys", 0);
-        String savedKey = settings.getString("keys", encryptedKey).toString();
+        savedKey = settings.getString("keys", encryptedKey).toString();
 
-        // TODO: Check this key against the database.
+        if (savedKey != "") {
+            final ProgressDialog progressDialog = new ProgressDialog(Login.this, R.style.AppTheme);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Authenticating...");
+            progressDialog.show();
+
+            //Start a new thread to check login details against the server
+            new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            //Checks login information with the server, will return true or false if the user has
+                            //an account
+
+                            //Stores text from the server
+                            String result = "";
+                            try {
+                                //.get() returns the string and not the activity (which is what we want)
+                                result = new GetData().execute("keyCheck").get();
+                                //Catch any errors here
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
+
+                            //If the result is false or null(server error) fail the authentication
+                            if (result.equals("false")) {
+                                // Exit the method
+                            }
+                            //Else log the user in
+                            else {
+                                // Get data from results
+                                authenticationResponseString = result;
+                                String[] response = authenticationResponseString.split(",");
+                                String userID = response[0];
+                                String username = response[1];
+
+                                onLoginSuccess(username, userID);
+
+                                progressDialog.dismiss();
+                            }
+                            progressDialog.dismiss();
+                        }
+                    }, 3000);
+        }
+        else
+        {
+            // Exit the method
+        }
     }
 
     //Method called when login button is clicked
@@ -101,7 +150,7 @@ public class Login extends AppCompatActivity {
         //Encrypt the password with MD5
         convertToMD5(password);
 
-        //Strart a new thread to check login details against the server
+        //Start a new thread to check login details against the server
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -112,7 +161,7 @@ public class Login extends AppCompatActivity {
                         String result = "";
                         try {
                             //.get() returns the string and not the activity (which is what we want)
-                            result = new GetData().execute().get();
+                            result = new GetData().execute("").get();
 
                             //Catch any errors here
                         } catch (InterruptedException e) {
@@ -144,7 +193,7 @@ public class Login extends AppCompatActivity {
                             editor.putString("keys", encryptedKey);
                             editor.commit();
 
-                            onLoginSuccess(username);
+                            onLoginSuccess(username, userID);
 
                             progressDialog.dismiss();
                         }
@@ -160,9 +209,9 @@ public class Login extends AppCompatActivity {
     }
 
     //If the login was successful load the main page
-    private void onLoginSuccess(String username) {
+    private void onLoginSuccess(String username, String userID) {
         _loginButton.setEnabled(true);
-        loadMainPage(username);
+        loadMainPage(username, userID);
     }
 
     //Tell the user the login failed
@@ -194,10 +243,11 @@ public class Login extends AppCompatActivity {
     }
 
     //Load the main page
-    private void loadMainPage(String username)
+    private void loadMainPage(String username, String userID)
     {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("username", username);
+        intent.putExtra("userID", userID);
         startActivity(intent);
     }
 
@@ -237,8 +287,19 @@ public class Login extends AppCompatActivity {
             HttpURLConnection urlConnection = null;
             String result = "";
             try {
+                URL url = null;
                 //Connects to the server using the users details (Password is encrypted before hand)
-                URL url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
+                if(params[0].equals("")){
+                    url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
+                }
+                else if(params[0].equals("keyCheck"))
+                {
+                    //TODO make url equal to server check
+                    url = new URL("http://calendar.brandonflude.xyz/app/services/verifyAuthentication.php?auth=7awee81inro39mzupu8v&key="+ savedKey);
+                }
+                else{
+                    //App should not get here
+                }
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
 
