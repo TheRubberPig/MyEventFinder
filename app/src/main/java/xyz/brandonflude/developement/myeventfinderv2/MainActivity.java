@@ -23,6 +23,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
 {
     Bundle extras;
+    String userID = "";
 
     CalendarPickerView calendar;
     @Override
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity
         {
             user.setText("Welcome " + extras.getString("username"));
         }
+        userID = extras.getString("userID");
         Calendar nextYear = Calendar.getInstance();
         nextYear.add(Calendar.YEAR, 1);
 
