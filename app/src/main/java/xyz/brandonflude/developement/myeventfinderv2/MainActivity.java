@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity
 {
     Bundle extras;
+    String userID = "";
 
     String _UserID;
     CalendarPickerView calendar;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity
         {
             user.setText("Welcome " + extras.getString("username"));
         }
+        userID = extras.getString("userID");
         Calendar nextYear = Calendar.getInstance();
         nextYear.add(Calendar.YEAR, 1);
 

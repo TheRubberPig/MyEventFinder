@@ -6,7 +6,10 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,11 @@ import java.util.concurrent.ExecutionException;
 
 import static android.R.attr.data;
 import static android.R.id.list;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.awayTeam;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.homeTeam;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.league;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.location;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.stadium;
 
 public class TeamInformation extends AppCompatActivity {
     Bundle extras;
@@ -38,24 +46,33 @@ public class TeamInformation extends AppCompatActivity {
         teamID = extras.getString("teamID");
         String imgURL = extras.getString("imgURL");
         new DownloadImage((ImageView) findViewById(R.id.logo)).execute(imgURL);
+        LinearLayout listings = (LinearLayout) findViewById(R.id.FixtureListings);
         TextView descView = (TextView) findViewById(R.id.description);
-        TextView homeTeam = (TextView) findViewById(R.id.homeTeam);
-        TextView awayTeam = (TextView) findViewById(R.id.awayTeam);
-        TextView startTime = (TextView) findViewById(R.id.fixtureStart);
-        TextView stadium = (TextView) findViewById(R.id.stadium);
-        TextView location = (TextView) findViewById(R.id.location);
-        TextView league = (TextView) findViewById(R.id.league);
         try {
             String desc = new GetData().execute("desc").get();
-            String fixtureInfo = new GetData().execute("").get();
-            String[] parts = fixtureInfo.split(",");
             descView.setText(desc);
-            homeTeam.setText(parts[0]);
-            awayTeam.setText(parts[1]);
-            startTime.setText(parts[2]);
-            stadium.setText(parts[4]);
-            location.setText(parts[5]);
-            league.setText(parts[6]);
+            String fixtureInfo = new GetData().execute("").get();
+            if(fixtureInfo.equals("false")){
+                TextView noFixtures = (TextView) findViewById(R.id.noFixtures);
+                listings.setVisibility(View.GONE);
+                noFixtures.setText("No upcoming fixtures");
+            }
+            else
+            {
+                TextView homeTeam = (TextView) findViewById(R.id.homeTeam);
+                TextView awayTeam = (TextView) findViewById(R.id.awayTeam);
+                TextView startTime = (TextView) findViewById(R.id.fixtureStart);
+                TextView stadium = (TextView) findViewById(R.id.stadium);
+                TextView location = (TextView) findViewById(R.id.location);
+                TextView league = (TextView) findViewById(R.id.league);
+                String[] parts = fixtureInfo.split(",");
+                homeTeam.setText(parts[0]);
+                awayTeam.setText(parts[1]);
+                startTime.setText(parts[2]);
+                stadium.setText(parts[4]);
+                location.setText(parts[5]);
+                league.setText(parts[6]);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
