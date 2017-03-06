@@ -101,8 +101,10 @@ public class MainActivity extends AppCompatActivity
     public void searchTeams(View view)
     {
         Intent i = new Intent(getApplicationContext(), SearchTeams.class);
+        i.putExtra("userID", userID);
         startActivity(i);
     }
+
 }
 
 class showRelevantDates extends AsyncTask<String,Void,String>

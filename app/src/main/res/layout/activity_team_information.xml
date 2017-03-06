@@ -37,7 +37,9 @@
         <TextView
             android:id="@+id/noFixtures"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:paddingTop = "8dp"
+            android:textSize="16dp"/>
 
         <LinearLayout
             android:id="@+id/FixtureListings"
@@ -130,5 +132,11 @@
 
             </LinearLayout>
         </LinearLayout>
+
+        <Button
+            android:onClick="addTeam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Team"/>
     </LinearLayout>
 </ScrollView>

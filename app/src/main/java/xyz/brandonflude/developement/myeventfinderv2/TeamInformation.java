@@ -1,5 +1,6 @@
 package xyz.brandonflude.developement.myeventfinderv2;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 import static android.R.attr.data;
 import static android.R.id.list;
+import static android.R.id.switch_widget;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.awayTeam;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.homeTeam;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.league;
@@ -35,6 +37,7 @@ import static xyz.brandonflude.developement.myeventfinderv2.R.id.stadium;
 public class TeamInformation extends AppCompatActivity {
     Bundle extras;
     String teamID = "";
+    String userID = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class TeamInformation extends AppCompatActivity {
 
         extras = getIntent().getExtras();
         teamID = extras.getString("teamID");
+        userID = extras.getString("userID");
         String imgURL = extras.getString("imgURL");
         new DownloadImage((ImageView) findViewById(R.id.logo)).execute(imgURL);
         LinearLayout listings = (LinearLayout) findViewById(R.id.FixtureListings);
@@ -78,6 +82,30 @@ public class TeamInformation extends AppCompatActivity {
         }
     }
 
+    public void addTeam(){
+        try{
+            String result = new GetData().execute("add").get();
+            Context context = getApplicationContext();
+            switch(result){
+                case "true":
+                    Toast toast = Toast.makeText(context, "Team added!", Toast.LENGTH_LONG);
+                    toast.show();
+
+                case "false":
+                    Toast toastF = Toast.makeText(context, "An unexpected error occured", Toast.LENGTH_LONG);
+                    toastF.show();
+
+                case "exists":
+                    Toast toastE = Toast.makeText(context, "Team already added!", Toast.LENGTH_LONG);
+                    toastE.show();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
     class GetData extends AsyncTask<String, Void, String>{
 
         @Override
@@ -92,9 +120,13 @@ public class TeamInformation extends AppCompatActivity {
                 {
                     url = new URL("http://calendar.brandonflude.xyz/app/services/descriptions.php?team-id=" + teamID);
                 }
+                else if(params[0].equals("add"))
+                {
+                     url = new URL("http://calendar.brandonflude.xyz/app/services/addTeam.php?user-id=" + userID + "&team-id=" + teamID);
+                }
                 else if(params[0].equals(""))
                 {
-                     url = new URL("http://calendar.brandonflude.xyz/app/services/summary.php?team-id=" + teamID);
+                    url = new URL("http://calendar.brandonflude.xyz/app/services/summary.php?team-id=" + teamID);
                 }
                 else
                 {

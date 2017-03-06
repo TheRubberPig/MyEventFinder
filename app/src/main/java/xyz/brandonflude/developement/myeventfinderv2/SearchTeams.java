@@ -53,6 +53,7 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
     private ListView showResults;
 
     private ProgressDialog loading;
+    Bundle extras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,12 +131,15 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                extras = getIntent().getExtras();
+                String userID = extras.getString("userID");
                 //Gets the position of the item in the list
                 JSONObject pos = (JSONObject) showResults.getItemAtPosition(position);
 
                 //Open up new page with details about the selected team.
                 Intent i = new Intent(getBaseContext(), TeamInformation.class);
                 try {
+                    i.putExtra("userID", userID);
                     i.putExtra("teamID", pos.getString("team_id"));
                     i.putExtra("imgURL", pos.getString("team_logo_url"));
                 } catch (JSONException e) {
