@@ -2,6 +2,7 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.icu.util.Calendar;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -106,7 +107,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void logOut(View view){
-        //TODO Log out code here.
+        // If logout is hit, reset the saved key to an empty string
+        SharedPreferences keys = getSharedPreferences("MyEventFinderAuthKeys", 0);
+        SharedPreferences.Editor editor = keys.edit();
+        editor.putString("keys", "");
+        editor.commit();
+
+        // Push them to the login screen
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
     }
 
 }
