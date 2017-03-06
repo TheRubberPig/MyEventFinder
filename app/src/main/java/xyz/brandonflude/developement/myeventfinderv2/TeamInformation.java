@@ -82,7 +82,7 @@ public class TeamInformation extends AppCompatActivity {
         }
     }
 
-    public void addTeam(){
+    public void addTeam(View view){
         try{
             String result = new GetData().execute("add").get();
             Context context = getApplicationContext();
@@ -90,14 +90,39 @@ public class TeamInformation extends AppCompatActivity {
                 case "true":
                     Toast toast = Toast.makeText(context, "Team added!", Toast.LENGTH_LONG);
                     toast.show();
+                    break;
 
                 case "false":
                     Toast toastF = Toast.makeText(context, "An unexpected error occured", Toast.LENGTH_LONG);
                     toastF.show();
+                    break;
 
                 case "exists":
                     Toast toastE = Toast.makeText(context, "Team already added!", Toast.LENGTH_LONG);
                     toastE.show();
+                    break;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeTeam(View view){
+        try{
+            String result = new GetData().execute("remove").get();
+            Context context = getApplicationContext();
+            switch(result){
+                case "true":
+                    Toast toast = Toast.makeText(context, "Team removed!", Toast.LENGTH_LONG);
+                    toast.show();
+                    break;
+
+                case "false":
+                    Toast toastF = Toast.makeText(context, "An unexpected error occured", Toast.LENGTH_LONG);
+                    toastF.show();
+                    break;
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -116,22 +141,22 @@ public class TeamInformation extends AppCompatActivity {
             try {
                 //Connects to the server using the users details (Password is encrypted before hand)
                 URL url;
-                if(params[0].equals("desc"))
-                {
-                    url = new URL("http://calendar.brandonflude.xyz/app/services/descriptions.php?team-id=" + teamID);
-                }
-                else if(params[0].equals("add"))
-                {
-                     url = new URL("http://calendar.brandonflude.xyz/app/services/addTeam.php?user-id=" + userID + "&team-id=" + teamID);
-                }
-                else if(params[0].equals(""))
-                {
-                    url = new URL("http://calendar.brandonflude.xyz/app/services/summary.php?team-id=" + teamID);
-                }
-                else
-                {
-                    //Should never get here
-                    url = null;
+                switch(params[0]){
+                    case "desc":
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/descriptions.php?team-id=" + teamID);
+                        break;
+                    case "add":
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/addTeam.php?user-id=" + userID + "&team-id=" + teamID);
+                        break;
+                    case "remove":
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/removeTeam.php?user-id=" + userID + "&team-id=" + teamID);
+                        break;
+                    case "":
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/summary.php?team-id=" + teamID);
+                        break;
+                    default:
+                        url = null;
+                        break;
                 }
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();

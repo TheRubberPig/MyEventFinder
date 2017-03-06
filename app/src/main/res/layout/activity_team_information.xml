@@ -138,5 +138,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add Team"/>
+
+        <Button
+            android:onClick="removeTeam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remove team"/>
     </LinearLayout>
 </ScrollView>
