@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         calendar.init(today, nextYear.getTime())
                 .withSelectedDate(today);
 
-        try{
+        /*try{
             for(int i = 0; i < 28; i++)
             {
                 if(!(showDates.execute(_UserID, String.valueOf(i)).get().equals("[]")))
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         catch(ExecutionException ee)
         {
             ee.printStackTrace();
-        }
+        }*/
 
         //calendar.highlightDates(userDates);
     }

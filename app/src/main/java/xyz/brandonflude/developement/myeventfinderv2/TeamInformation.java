@@ -30,7 +30,6 @@ import static android.R.id.list;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.awayTeam;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.homeTeam;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.league;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.location;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.stadium;
 
 public class TeamInformation extends AppCompatActivity {
@@ -63,15 +62,14 @@ public class TeamInformation extends AppCompatActivity {
                 TextView awayTeam = (TextView) findViewById(R.id.awayTeam);
                 TextView startTime = (TextView) findViewById(R.id.fixtureStart);
                 TextView stadium = (TextView) findViewById(R.id.stadium);
-                TextView location = (TextView) findViewById(R.id.location);
                 TextView league = (TextView) findViewById(R.id.league);
-                String[] parts = fixtureInfo.split(",");
+                String[] allFixtures = fixtureInfo.split("\\|");
+                String[] parts = allFixtures[0].split(",");
                 homeTeam.setText(parts[0]);
                 awayTeam.setText(parts[1]);
                 startTime.setText(parts[2]);
                 stadium.setText(parts[4]);
-                location.setText(parts[5]);
-                league.setText(parts[6]);
+                league.setText(parts[5]);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
