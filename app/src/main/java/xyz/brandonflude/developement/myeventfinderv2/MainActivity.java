@@ -37,8 +37,6 @@ public class MainActivity extends AppCompatActivity
 {
     Bundle extras;
     String userID = "";
-
-    String _UserID;
     CalendarPickerView calendar;
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity
         /*try{
             for(int i = 0; i < 28; i++)
             {
-                if(!(showDates.execute(_UserID, String.valueOf(i)).get().equals("[]")))
+                if(!(showDates.execute(userID, String.valueOf(i)).get().equals("[]")))
                 {
                     Log.e("ee","ee");
                 }
@@ -143,7 +141,7 @@ class showRelevantDates extends AsyncTask<String,Void,String>
 
         try
         {
-            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=8&date=2017-02-0");
+            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-02-0");
 
             urlConnection = (HttpURLConnection) qUrl.openConnection();
 
