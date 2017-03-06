@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:textAllCaps="true"
             android:text = "Select Date"
             android:onClick="dateClick"/>
@@ -41,9 +41,15 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:textAllCaps="true"
             android:text = "Search for teams"
             android:onClick="searchTeams"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log Out"
+            android:onClick="logOut"/>
     </LinearLayout>
 </ScrollView>

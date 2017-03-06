@@ -105,6 +105,10 @@ public class MainActivity extends AppCompatActivity
         startActivity(i);
     }
 
+    public void logOut(View view){
+        //TODO Log out code here.
+    }
+
 }
 
 class showRelevantDates extends AsyncTask<String,Void,String>
