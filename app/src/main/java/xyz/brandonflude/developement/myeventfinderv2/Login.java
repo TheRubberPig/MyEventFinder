@@ -288,17 +288,20 @@ public class Login extends AppCompatActivity {
             String result = "";
             try {
                 URL url = null;
-                //Connects to the server using the users details (Password is encrypted before hand)
-                if(params[0].equals("")){
-                    url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
-                }
-                else if(params[0].equals("keyCheck"))
-                {
-                    //TODO make url equal to server check
-                    url = new URL("http://calendar.brandonflude.xyz/app/services/verifyAuthentication.php?auth=7awee81inro39mzupu8v&key="+ savedKey);
-                }
-                else{
-                    //App should not get here
+                //Selects url to use depending what is passed into the method.
+                switch (params[0]){
+                    case "":
+                        //Trigger login PHP
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/login.php?auth=7awee81inro39mzupu8v&email="+ email +"&password=" +encryptedPassword);
+                        break;
+                    case "keyCheck":
+                        //Check if the user has logged in before
+                        url = new URL("http://calendar.brandonflude.xyz/app/services/verifyAuthentication.php?auth=7awee81inro39mzupu8v&key="+ savedKey);
+                        break;
+                    default:
+                        //Return null if nothing is passed in.
+                        url = null;
+                        break;
                 }
                 //Opens the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
