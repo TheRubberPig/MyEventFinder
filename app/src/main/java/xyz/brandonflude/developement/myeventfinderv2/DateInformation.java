@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public class DateInformation extends AppCompatActivity {
+    //Meh
     Bundle extras;
     String date;
     @Override
