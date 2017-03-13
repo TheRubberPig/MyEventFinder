@@ -48,11 +48,11 @@ public class MainActivity extends AppCompatActivity
         extras = getIntent().getExtras();
         if(extras.getString("username").equals(""))
         {
-            user.setText("No username found");
+            user.setText("Welcome back");
         }
         else
         {
-            user.setText("Welcome " + extras.getString("username"));
+            user.setText(extras.getString("username") + "'s Calendar");
         }
         userID = extras.getString("userID");
         Calendar nextYear = Calendar.getInstance();
@@ -62,23 +62,94 @@ public class MainActivity extends AppCompatActivity
         calendar = (CalendarPickerView) findViewById(R.id.calendar_grid);
         //Get min date I.E:Today
         Date today = new Date();
-        //Get max date, currently 1 year forward and initalize the calendar
+        //Get max date, currently 1 year forward and initalise the calendar
         calendar.init(today, nextYear.getTime())
                 .withSelectedDate(today);
+
+        /*try{
+            for(int i = 0; i < 28; i++)
+            {
+                if(!(showDates.execute(userID, String.valueOf(i)).get().equals("[]")))
+                {
+                    Log.e("ee","ee");
+                }
+            }
+        }
+        catch(InterruptedException ie)
+        {
+            ie.printStackTrace();
+        }
+        catch(ExecutionException ee)
+        {
+            ee.printStackTrace();
+        }*/
+
+        //calendar.highlightDates(userDates);
     }
 
-    public void dateClick(View view) throws ParseException {
-        //TODO:Fix this shit.
-        //The date from the calendar is coming back as Day-Month-Year e.g:Fri 25 Mar 17
-        //Thus meaning the built in date reformating doesn't work and breaks the app
+    public void dateClick(View view)
+    {
         Date selectedDate = calendar.getSelectedDate();
-        SimpleDateFormat dt = new SimpleDateFormat("yyyy-mm-dd");
         String trimmedDate = selectedDate.toString();
-        Date date = dt.parse(trimmedDate);
-        String newDate = date.toString();
+
+        // Begin reformation of the date
+        // Split it into all of it's subsections and then take what we need
+        String[] splitDate = trimmedDate.split(" ");
+        String day = splitDate[0];
+        String month = splitDate[1];
+        String date = splitDate[2];
+        String time = splitDate[3];
+        String timezone = splitDate[4];
+        String year = splitDate[5];
+
+        // Convert the month from text format to numerical
+        switch(month)
+        {
+            case "Jan":
+                month = "01";
+                break;
+            case "Feb":
+                month = "02";
+                break;
+            case "Mar":
+                month = "03";
+                break;
+            case "Apr":
+                month = "04";
+                break;
+            case "May":
+                month = "05";
+                break;
+            case "Jun":
+                month = "06";
+                break;
+            case "Jul":
+                month = "07";
+                break;
+            case "Aug":
+                month = "08";
+                break;
+            case "Sep":
+                month = "09";
+                break;
+            case "Oct":
+                month = "10";
+                break;
+            case "Nov":
+                month = "11";
+                break;
+            case "Dec":
+                month = "12";
+                break;
+            default:
+                break;
+        }
+
+        String newDate = year + "-" + month + "-" + date;
+
         Intent i = new Intent(getApplicationContext(), DateInformation.class);
-        i.putExtra("date", trimmedDate);
         i.putExtra("userID", userID);
+        i.putExtra("date", newDate);
         startActivity(i);
     }
 
@@ -126,7 +197,7 @@ class showRelevantDates extends AsyncTask<String,Void,String>
 
         try
         {
-            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-03-");
+            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-02-0");
 
             urlConnection = (HttpURLConnection) qUrl.openConnection();
 
