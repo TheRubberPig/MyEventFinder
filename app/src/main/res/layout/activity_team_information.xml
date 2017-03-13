@@ -53,12 +53,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Date and Start Time:"/>
-
-                <TextView
-                    android:id="@+id/fixtureStart"
+                    android:id="@+id/fixturePlayed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -70,12 +65,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Home Team: "/>
-
-                <TextView
-                    android:id="@+id/homeTeam"
+                    android:id="@+id/fixtureTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -87,12 +77,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Away Team: "/>
-
-                <TextView
-                    android:id="@+id/awayTeam"
+                    android:id="@+id/fixtureVenue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -104,33 +89,12 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Stadium: "/>
-
-                <TextView
-                    android:id="@+id/stadium"
+                    android:id="@+id/fixtureLeague"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="League: "/>
-
-                <TextView
-                    android:id="@+id/league"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
         </LinearLayout>
 
         <Button

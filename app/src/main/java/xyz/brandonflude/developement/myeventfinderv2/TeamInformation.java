@@ -24,15 +24,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.BreakIterator;
 import java.util.concurrent.ExecutionException;
 
 import static android.R.attr.data;
 import static android.R.id.list;
 import static android.R.id.switch_widget;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.awayTeam;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.homeTeam;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.league;
-import static xyz.brandonflude.developement.myeventfinderv2.R.id.stadium;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixturePlayed;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixtureTime;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixtureLeague;
+import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixtureVenue;
 
 public class TeamInformation extends AppCompatActivity {
     Bundle extras;
@@ -62,18 +63,47 @@ public class TeamInformation extends AppCompatActivity {
             }
             else
             {
-                TextView homeTeam = (TextView) findViewById(R.id.homeTeam);
-                TextView awayTeam = (TextView) findViewById(R.id.awayTeam);
-                TextView startTime = (TextView) findViewById(R.id.fixtureStart);
-                TextView stadium = (TextView) findViewById(R.id.stadium);
-                TextView league = (TextView) findViewById(R.id.league);
+                TextView fixturePlayed = (TextView) findViewById(R.id.fixturePlayed);
+                TextView fixtureTime = (TextView) findViewById(R.id.fixtureTime);
+                TextView fixtureVenue = (TextView) findViewById(R.id.fixtureVenue);
+                TextView fixtureLeague = (TextView) findViewById(R.id.fixtureLeague);
                 String[] allFixtures = fixtureInfo.split("\\|");
                 String[] parts = allFixtures[0].split(",");
-                homeTeam.setText(parts[0]);
-                awayTeam.setText(parts[1]);
-                startTime.setText(parts[2]);
-                stadium.setText(parts[4]);
-                league.setText(parts[5]);
+
+                // Format the data fetched from the server to be more user friendly
+                String dateInfo = parts[2];
+                String[] splitInfo = dateInfo.split(" ");
+                String date = splitInfo[0];
+                String time = splitInfo[1];
+                String[] splitDate = date.split("-");
+                String[] splitTime = time.split(":");
+                String month = splitDate[1];
+                String day = splitDate[2];
+                String hour = splitTime[0];
+                String mins = splitTime[1];
+
+                // Set strings that need to be displayed
+                String fixtureTeams;
+                String fixtureStart = day + "/" + month + " at " + hour + ":" + mins;
+                String venueName = parts[4];
+                String leagueName = parts[5];
+
+                if(leagueName.equals("Premier League"))
+                {
+                    fixtureTeams = parts[0] + " vs. " + parts[1];
+                }
+                else
+                {
+                    fixtureTeams = parts[1] + " @ " + parts[0];
+                }
+
+
+                // Fill the containers with parsed data
+                fixturePlayed.setText(fixtureTeams);
+                fixtureTime.setText(fixtureStart);
+                fixtureVenue.setText(venueName);
+                fixtureLeague.setText(leagueName);
+
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -93,7 +123,7 @@ public class TeamInformation extends AppCompatActivity {
                     break;
 
                 case "false":
-                    Toast toastF = Toast.makeText(context, "An unexpected error occured", Toast.LENGTH_LONG);
+                    Toast toastF = Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_LONG);
                     toastF.show();
                     break;
 
@@ -120,7 +150,7 @@ public class TeamInformation extends AppCompatActivity {
                     break;
 
                 case "false":
-                    Toast toastF = Toast.makeText(context, "An unexpected error occured", Toast.LENGTH_LONG);
+                    Toast toastF = Toast.makeText(context, "An unexpected error occurred", Toast.LENGTH_LONG);
                     toastF.show();
                     break;
             }
