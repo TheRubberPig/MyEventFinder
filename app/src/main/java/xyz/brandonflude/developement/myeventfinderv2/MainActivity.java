@@ -65,35 +65,20 @@ public class MainActivity extends AppCompatActivity
         //Get max date, currently 1 year forward and initalize the calendar
         calendar.init(today, nextYear.getTime())
                 .withSelectedDate(today);
-
-        /*try{
-            for(int i = 0; i < 28; i++)
-            {
-                if(!(showDates.execute(userID, String.valueOf(i)).get().equals("[]")))
-                {
-                    Log.e("ee","ee");
-                }
-            }
-        }
-        catch(InterruptedException ie)
-        {
-            ie.printStackTrace();
-        }
-        catch(ExecutionException ee)
-        {
-            ee.printStackTrace();
-        }*/
-
-        //calendar.highlightDates(userDates);
     }
 
-    public void dateClick(View view)
-    {
+    public void dateClick(View view) throws ParseException {
+        //TODO:Fix this shit.
+        //The date from the calendar is coming back as Day-Month-Year e.g:Fri 25 Mar 17
+        //Thus meaning the built in date reformating doesn't work and breaks the app
         Date selectedDate = calendar.getSelectedDate();
+        SimpleDateFormat dt = new SimpleDateFormat("yyyy-mm-dd");
         String trimmedDate = selectedDate.toString();
-        trimmedDate = trimmedDate.substring(0, Math.min(trimmedDate.length(), 10));
+        Date date = dt.parse(trimmedDate);
+        String newDate = date.toString();
         Intent i = new Intent(getApplicationContext(), DateInformation.class);
         i.putExtra("date", trimmedDate);
+        i.putExtra("userID", userID);
         startActivity(i);
     }
 
@@ -141,7 +126,7 @@ class showRelevantDates extends AsyncTask<String,Void,String>
 
         try
         {
-            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-02-0");
+            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-03-");
 
             urlConnection = (HttpURLConnection) qUrl.openConnection();
 

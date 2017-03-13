@@ -245,9 +245,12 @@ public class Login extends AppCompatActivity {
     //Load the main page
     private void loadMainPage(String username, String userID)
     {
+        //Start a new intent
         Intent intent = new Intent(this, MainActivity.class);
+        //Pass username and id into main activity
         intent.putExtra("username", username);
         intent.putExtra("userID", userID);
+        //Start the main activity
         startActivity(intent);
     }
 
