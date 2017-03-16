@@ -123,7 +123,7 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         }
 
         //Sets the ListView to show JSON Results
-        showResults = (ListView) findViewById(R.id.searchResults);
+        //showResults = (ListView) findViewById(R.id.searchResults);
         showResults.setAdapter(new ListAdapter(this,jsonObjects));
 
         //Makes the list respond to clicks

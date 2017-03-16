@@ -231,6 +231,7 @@ public class TeamInformation extends AppCompatActivity {
     }
 }
 
+
 class DownloadImage extends AsyncTask<String, Void, Bitmap> {
     ImageView bmImage;
 
