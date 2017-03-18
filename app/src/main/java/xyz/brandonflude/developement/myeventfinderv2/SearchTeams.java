@@ -47,9 +47,8 @@ import static xyz.brandonflude.developement.myeventfinderv2.R.id.teamLogo;
 
 public class SearchTeams extends AppCompatActivity implements View.OnClickListener{
 
+    //Variables that are needed across methods/Classes
     private EditText editTextId;
-    private Button buttonGet;
-    private TextView textViewResult;
     private ListView showResults;
 
     private ProgressDialog loading;
@@ -61,8 +60,7 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         setContentView(R.layout.activity_search_teams);
 
         editTextId = (EditText) findViewById(R.id.editTextId);
-        buttonGet = (Button) findViewById(R.id.buttonGet);
-        textViewResult = (TextView) findViewById(R.id.textViewResult);
+        Button buttonGet = (Button) findViewById(R.id.buttonGet);
         showResults = (ListView) findViewById(R.id.searchResults);
 
         buttonGet.setOnClickListener(this);
@@ -103,11 +101,6 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
     }
 
     private void showJSON(String response) throws JSONException {
-        //Sets up initial variables
-        String id = "";
-        String teamName = "";
-        String logoURL = "";
-        String league = "";
         //Creates an array of json data
         JSONArray jsonArray = new JSONArray(response);
         //Makes a list of JSON Objects
@@ -115,10 +108,6 @@ public class SearchTeams extends AppCompatActivity implements View.OnClickListen
         //Loop through the JSON Array to get each object
         for(int i = 0; i < jsonArray.length(); i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);
-            id = jsonObject.getString("team_id");
-            teamName = jsonObject.getString("team_nm");
-            logoURL = jsonObject.getString("team_logo_url");
-            league = jsonObject.getString("league_nm");
             jsonObjects.add(jsonObject);
         }
 
@@ -175,59 +164,73 @@ class ListAdapter extends ArrayAdapter<JSONObject> {
 
     //Gets the view for where the results will show
     public View getView(int position, View convertView, ViewGroup parent){
+        //Sets up card list view
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View itemView = inflater.inflate(R.layout.activity_search_teams_row, parent, false);
+
+        //Sets up views within the card view
         TextView teamName=(TextView)itemView.findViewById(R.id.teamName);
-        ImageView logoURL=(ImageView) itemView.findViewById(teamLogo);
         TextView textLeague = (TextView)itemView.findViewById(R.id.leagueName);
 
         try{
+            //Sets the views within the card to data from the server
             teamName.setText(list.get(position).getString("team_nm"));
-            URL imgURL = new URL(list.get(position).getString("team_logo_url"));
             new DownloadImageTask((ImageView) itemView.findViewById(R.id.teamLogo))
                     .execute(list.get(position).getString("team_logo_url"));
             textLeague.setText(list.get(position).getString("league_nm"));
         }
         catch (JSONException e){
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return itemView;
     }
 
+    //Gets the list count
     @Override
     public int getCount() {
         return list.size();
     }
 
+    //Gets an item in the list
     @Override
     public JSONObject getItem(int position) {
         return list.get(position);
     }
 
+    //Gets the items ID
     @Override
     public long getItemId(int position) {
         return 0;
     }
 }
 
+//A Class to download an Image, Made by Dave
 class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+
+    //Temp image view
     ImageView bmImage;
 
     public DownloadImageTask(ImageView bmImage) {
         this.bmImage = bmImage;
     }
 
+    //Downloads an image in the background
     @Override
     protected Bitmap doInBackground(String... urls) {
+
+        //Gets the URL
         String urldisplay = urls[0];
+
+        //Creates a new Bitmap
         Bitmap mIcon11 = null;
+
         try {
+            //Opens a new input strem from the URL
             InputStream in = new java.net.URL(urldisplay).openStream();
+
+            //Saves the incoming data to a Bitmap
             mIcon11 = BitmapFactory.decodeStream(in);
+
         } catch (Exception e) {
             Log.e("Error", e.getMessage());
             e.printStackTrace();
@@ -235,6 +238,7 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         return mIcon11;
     }
 
+    //Return the downloaded bitmap
     @Override
     protected void onPostExecute(Bitmap result) {
         bmImage.setImageBitmap(result);

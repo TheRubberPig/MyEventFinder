@@ -36,26 +36,40 @@ import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixtureLeague;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.fixtureVenue;
 
 public class TeamInformation extends AppCompatActivity {
+
+    //Variables needed across methods/Classes
     Bundle extras;
     String teamID = "";
     String userID = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Sets Up Main View
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_information);
 
+        //Gets variables from previous intent
         extras = getIntent().getExtras();
         teamID = extras.getString("teamID");
         userID = extras.getString("userID");
         String imgURL = extras.getString("imgURL");
+
+        //Downloads an image from a URL
         new DownloadImage((ImageView) findViewById(R.id.logo)).execute(imgURL);
+
+        //Sets up sub views/layouts
         LinearLayout listings = (LinearLayout) findViewById(R.id.FixtureListings);
         TextView descView = (TextView) findViewById(R.id.description);
+
         try {
+            //Gets a team summary from the server and sets it in the view
             String desc = new GetData().execute("desc").get();
             descView.setText(desc);
+
+            //Gets fixture info from the server
             String fixtureInfo = new GetData().execute("").get();
+
+            //Say no fixtures if the server returns false
             if(fixtureInfo.equals("false")){
                 TextView noFixtures = (TextView) findViewById(R.id.noFixtures);
                 listings.setVisibility(View.GONE);
@@ -63,6 +77,7 @@ public class TeamInformation extends AppCompatActivity {
             }
             else
             {
+                //All the text views within the layout being initialized
                 TextView fixturePlayed = (TextView) findViewById(R.id.fixturePlayed);
                 TextView fixtureTime = (TextView) findViewById(R.id.fixtureTime);
                 TextView fixtureVenue = (TextView) findViewById(R.id.fixtureVenue);
@@ -88,6 +103,7 @@ public class TeamInformation extends AppCompatActivity {
                 String venueName = parts[4];
                 String leagueName = parts[5];
 
+                //Grammar Checks
                 if(leagueName.equals("Premier League"))
                 {
                     fixtureTeams = parts[0] + " vs. " + parts[1];
@@ -112,10 +128,14 @@ public class TeamInformation extends AppCompatActivity {
         }
     }
 
+    //Method to add a team to the users tracked teams
     public void addTeam(View view){
         try{
+            //Gets a result from the server if the team was added successfully
             String result = new GetData().execute("add").get();
             Context context = getApplicationContext();
+
+            //Displays a toast depending on the outcome
             switch(result){
                 case "true":
                     Toast toast = Toast.makeText(context, "Team added!", Toast.LENGTH_LONG);
@@ -139,10 +159,14 @@ public class TeamInformation extends AppCompatActivity {
         }
     }
 
+    //Method to remove a team from a users tracked list
     public void removeTeam(View view){
         try{
+            //Gets a result from the server if the team was removed successfully
             String result = new GetData().execute("remove").get();
             Context context = getApplicationContext();
+
+            //Show a toast depending on the result
             switch(result){
                 case "true":
                     Toast toast = Toast.makeText(context, "Team removed!", Toast.LENGTH_LONG);
@@ -161,6 +185,7 @@ public class TeamInformation extends AppCompatActivity {
         }
     }
 
+    //Gets data from the server
     class GetData extends AsyncTask<String, Void, String>{
 
         @Override
@@ -231,7 +256,7 @@ public class TeamInformation extends AppCompatActivity {
     }
 }
 
-
+//Downloads an image into Bitmap Format
 class DownloadImage extends AsyncTask<String, Void, Bitmap> {
     ImageView bmImage;
 

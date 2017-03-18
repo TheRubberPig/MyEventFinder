@@ -52,34 +52,34 @@ import static xyz.brandonflude.developement.myeventfinderv2.R.id.teamLogo;
 import static xyz.brandonflude.developement.myeventfinderv2.R.id.teamName;
 
 public class DateInformation extends AppCompatActivity {
+    //Sets up variables that are needed across methods
     Bundle extras;
     String date;
     String userID;
 
     private ListView showResults;
 
-    private String mDataset;
-
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Set View
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_date_information);
 
+        //Get variables from previous intent
         extras = getIntent().getExtras();
         date = extras.getString("date");
         userID = extras.getString("userID");
 
+        //Sets up list
         showResults = (ListView) findViewById(R.id.dateResults);
-        //TODO: Query for fixtures on a specific date and then show them in a list.
+
+        ////Fetches data from the server
         String url = "http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=" + date;
         StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {
+                    //Shows the data that the server returns in a user friendly fashion
                     showJSON(response);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -98,11 +98,6 @@ public class DateInformation extends AppCompatActivity {
 
 
     private void showJSON(String response) throws JSONException {
-        //Sets up initial variables
-        String id = "";
-        String teamName = "";
-        String logoURL = "";
-        String league = "";
         //Creates an array of json data
         JSONArray jsonArray = new JSONArray(response);
         //Makes a list of JSON Objects
@@ -132,8 +127,11 @@ public class DateInformation extends AppCompatActivity {
 
         //Gets the view for where the results will show
         public View getView(int position, View convertView, ViewGroup parent){
+            //Sets up the card view within the list view
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View itemView = inflater.inflate(R.layout.activity_date_information_row, parent, false);
+
+            //All the views that need to be filled in with data from the server
             TextView teamName=(TextView)itemView.findViewById(R.id.homeTeamName);
             TextView awayTeamName = (TextView)itemView.findViewById(R.id.awayTeamName);
             TextView textLeague = (TextView)itemView.findViewById(R.id.league);
@@ -142,14 +140,22 @@ public class DateInformation extends AppCompatActivity {
             TextView endTime = (TextView)itemView.findViewById(R.id.endTime);
 
             try{
+                //Sets all the views in the card to values from the server
                 teamName.setText(list.get(position).getString("home_team_name"));
                 awayTeamName.setText(list.get(position).getString("away_team_name"));
+
+                //*******These download images from a URL********
                 new DownloadImageTask((ImageView) itemView.findViewById(R.id.homeTeamLogo))
                         .execute(list.get(position).getString("home_team_logo_url"));
                 new DownloadImageTask((ImageView) itemView.findViewById(R.id.awayTeamLogo))
                         .execute(list.get(position).getString("away_team_logo_url"));
+                //************************************************
+
+                //Sets more text views
                 textLeague.setText(list.get(position).getString("league_nm"));
                 gameLocation.setText(list.get(position).getString("venue_nm"));
+
+                //Splits the time string into a more user friendly format and then sets it
                 String startTimeString = (list.get(position).getString("fixture_start_dt")).substring(10);
                 startTime.setText(startTimeString);
                 String endTimeString = (list.get(position).getString("fixture_end_dt")).substring(10);
@@ -161,46 +167,22 @@ public class DateInformation extends AppCompatActivity {
             return itemView;
         }
 
+        //Gets the size of the list
         @Override
         public int getCount() {
             return list.size();
         }
 
+        //Gets the current position in the list
         @Override
         public JSONObject getItem(int position) {
             return list.get(position);
         }
 
+        //Gets the ID of the item in the list
         @Override
         public long getItemId(int position) {
             return 0;
-        }
-    }
-
-    class DownloadImages extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        public DownloadImages(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
         }
     }
 }
