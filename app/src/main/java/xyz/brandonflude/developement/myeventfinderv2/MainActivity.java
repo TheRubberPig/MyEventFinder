@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity
         calendar = (CalendarPickerView) findViewById(R.id.calendar_grid);
         //Get min date I.E:Today
         Date today = new Date();
+        Date first = new Date(today.getYear(), today.getMonth(),1);
         //Get max date, currently 1 year forward and initalise the calendar
-        calendar.init(today, nextYear.getTime())
+        calendar.init(first, nextYear.getTime())
                 .withSelectedDate(today);
         showRelevantDates showRelDates = new showRelevantDates();
         showRelDates.execute(userID);
-        calendar.highlightDates(strToDate(returnedDates));
+        List<Date> dates = strToDate(returnedDates);
+        calendar.highlightDates(dates);
     }
 
     public List<Date> strToDate(String inStr){
@@ -212,7 +214,7 @@ public class MainActivity extends AppCompatActivity
 
             try
             {
-                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=2017-03-");
+                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=2017-03");
 
                 urlConnection = (HttpURLConnection) qUrl.openConnection();
 
