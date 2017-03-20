@@ -109,7 +109,7 @@ public class DateInformation extends AppCompatActivity {
         }
 
         //Sets the ListView to show JSON Results
-        //showResults = (ListView) findViewById(R.id.searchResults);
+        //Also calls the list adapter class below this method
         showResults.setAdapter(new ListAdapter(this, jsonObjects));
     }
 

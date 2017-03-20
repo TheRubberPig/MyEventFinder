@@ -42,7 +42,6 @@ public class Login extends AppCompatActivity {
     TextView _signupLink;
     String encryptedPassword = null;
     String email = "";
-    //String username = "";
     String encryptedKey = "";
     String savedKey = "";
     String loginResponseString = "";
