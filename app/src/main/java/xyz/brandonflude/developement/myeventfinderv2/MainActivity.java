@@ -15,6 +15,10 @@ import android.widget.Toast;
 
 import com.squareup.timessquare.CalendarPickerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,6 +34,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -37,6 +42,7 @@ public class MainActivity extends AppCompatActivity
 {
     Bundle extras;
     String userID = "";
+    String returnedDates = "";
     CalendarPickerView calendar;
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -65,6 +71,48 @@ public class MainActivity extends AppCompatActivity
         //Get max date, currently 1 year forward and initalise the calendar
         calendar.init(today, nextYear.getTime())
                 .withSelectedDate(today);
+        showRelevantDates showRelDates = new showRelevantDates();
+        showRelDates.execute(userID);
+        calendar.highlightDates(strToDate(returnedDates));
+    }
+
+    public List<Date> strToDate(String inStr){
+        Log.i("TAG", "strToDate: " + inStr);
+        String result = "";
+        List<Date> newDates = new ArrayList<>();
+        Date thisTime = new Date();
+        String dateString = "";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+        final List<JSONObject> jsonObjects = new ArrayList<>();
+        try {
+            if(inStr != "") {
+                JSONArray jsonArray = new JSONArray(inStr);
+                //Makes a list of JSON Objects
+                //Loop through the JSON Array to get each object
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    jsonObjects.add(jsonObject);
+                    dateString = jsonObject.getString("fixture_start_dt");
+                    thisTime = format.parse(dateString);
+                    newDates.add(thisTime);
+
+                }
+            }
+        } catch (JSONException ee)
+        {
+            ee.printStackTrace();
+        }
+        catch(ParseException pe)
+        {
+            pe.printStackTrace();
+        }
+
+
+
+        String aa = "";
+        Log.i("TAG", "strToDate: " + newDates.toString());
+        return newDates;
 
     }
 
@@ -153,72 +201,53 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-}
-
-class showRelevantDates extends AsyncTask<String,Void,String>
-{
-    protected String doInBackground(String ...params)
+    class showRelevantDates extends AsyncTask<String,Void,String>
     {
-        List<Date> userDates = new ArrayList<>();
-        Date thisTime = new Date();
-        HttpURLConnection urlConnection = null;
-        String result = "";
-        String UserID = params[0];
-        String dateString = "2017-02-0";
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        try
+        protected String doInBackground(String ...params)
         {
-            thisTime = format.parse(dateString);
-            userDates.add(thisTime);
-        }
-        catch(ParseException pe)
-        {
-            pe.printStackTrace();
-        }
+            List<Date> userDates = new ArrayList<>();
+            HttpURLConnection urlConnection = null;
+            String result = "";
+            String UserID = params[0];
 
-        try
-        {
-            URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-02-0");
+            try
+            {
+                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-03-");
 
-            urlConnection = (HttpURLConnection) qUrl.openConnection();
+                urlConnection = (HttpURLConnection) qUrl.openConnection();
 
-            //Makes sure the server is running and accepting connections
-            int code = urlConnection.getResponseCode();
+                //Makes sure the server is running and accepting connections
+                int code = urlConnection.getResponseCode();
 
-            //If the server is up read the text.
-            if (code == 200) {
-                InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                if (in != null) {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-                    String line = "";
+                //If the server is up read the text.
+                if (code == 200) {
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    if (in != null) {
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+                        String line = "";
 
-                    //While the reader is not null store in result (For us it should always only be one word)
-                    while ((line = bufferedReader.readLine()) != null)
-                        result += line;
+                        //While the reader is not null store in result (For us it should always only be one word)
+                        while ((line = bufferedReader.readLine()) != null)
+                            result += line;
+                    }
+                    //Close the input stream.
+
+                    in.close();
                 }
-                //Close the input stream.
-                in.close();
             }
+            catch (MalformedURLException mue)
+            {
+                mue.printStackTrace();
+            }
+            catch (IOException ioe)
+            {
+                ioe.printStackTrace();
+            }
+            returnedDates = result;
+            return result;
         }
-        catch (MalformedURLException mue)
-        {
-            mue.printStackTrace();
-        }
-        catch (IOException ioe)
-        {
-            ioe.printStackTrace();
-        }
-        return result;
-    }
 
-    protected void onPostExecute(String result)
-    {
-        returnMethod(result);
-    }
-
-    private String returnMethod(String res)
-    {
-        return res;
     }
 
 }
+
