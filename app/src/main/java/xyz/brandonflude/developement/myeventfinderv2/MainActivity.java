@@ -3,7 +3,6 @@ package xyz.brandonflude.developement.myeventfinderv2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.icu.util.Calendar;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,6 +31,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity
 
             try
             {
-                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + UserID + "&date=2017-03-");
+                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=2017-03-");
 
                 urlConnection = (HttpURLConnection) qUrl.openConnection();
 

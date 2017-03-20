@@ -138,20 +138,42 @@ public class DateInformation extends AppCompatActivity {
             TextView gameLocation = (TextView)itemView.findViewById(R.id.gameLocation);
             TextView startTime = (TextView)itemView.findViewById(R.id.startTime);
             TextView endTime = (TextView)itemView.findViewById(R.id.endTime);
+            TextView vsText = (TextView)itemView.findViewById(R.id.vsText);
 
             try{
-                //Sets all the views in the card to values from the server
-                teamName.setText(list.get(position).getString("home_team_name"));
-                awayTeamName.setText(list.get(position).getString("away_team_name"));
+                //Gets the current league
+                String league = list.get(position).getString("league_nm");
 
-                //*******These download images from a URL********
-                new DownloadImageTask((ImageView) itemView.findViewById(R.id.homeTeamLogo))
-                        .execute(list.get(position).getString("home_team_logo_url"));
-                new DownloadImageTask((ImageView) itemView.findViewById(R.id.awayTeamLogo))
-                        .execute(list.get(position).getString("away_team_logo_url"));
-                //************************************************
-
-                //Sets more text views
+                //Sets the formatting depending on the league
+                if(league.equals("Premier League"))
+                {
+                    //Set home and away team text views
+                    teamName.setText(list.get(position).getString("home_team_name"));
+                    awayTeamName.setText(list.get(position).getString("away_team_name"));
+                    //Set middle text
+                    vsText.setText("VS");
+                    //*******These download images from a URL********
+                    new DownloadImageTask((ImageView) itemView.findViewById(R.id.homeTeamLogo))
+                            .execute(list.get(position).getString("home_team_logo_url"));
+                    new DownloadImageTask((ImageView) itemView.findViewById(R.id.awayTeamLogo))
+                            .execute(list.get(position).getString("away_team_logo_url"));
+                    //************************************************
+                }
+                else
+                {
+                    //Swap home and away team around to match official formatting
+                    teamName.setText(list.get(position).getString("away_team_name"));
+                    awayTeamName.setText(list.get(position).getString("home_team_name"));
+                    //Set Middle text
+                    vsText.setText("@");
+                    //*******These download images from a URL********
+                    new DownloadImageTask((ImageView) itemView.findViewById(R.id.homeTeamLogo))
+                            .execute(list.get(position).getString("away_team_logo_url"));
+                    new DownloadImageTask((ImageView) itemView.findViewById(R.id.awayTeamLogo))
+                            .execute(list.get(position).getString("home_team_logo_url"));
+                    //************************************************
+                }
+                //Set league view and location
                 textLeague.setText(list.get(position).getString("league_nm"));
                 gameLocation.setText(list.get(position).getString("venue_nm"));
 
