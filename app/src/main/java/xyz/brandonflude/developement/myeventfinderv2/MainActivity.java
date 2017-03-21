@@ -68,18 +68,29 @@ public class MainActivity extends AppCompatActivity
         calendar = (CalendarPickerView) findViewById(R.id.calendar_grid);
         //Get min date I.E:Today
         Date today = new Date();
-        Date first = new Date(today.getYear(), today.getMonth(),1);
+        Date first = new Date(today.getYear(), 0,1);
+        Date endOfYear = new Date(today.getYear(), 11, 32);
         //Get max date, currently 1 year forward and initalise the calendar
-        calendar.init(first, nextYear.getTime())
+        calendar.init(first, endOfYear)
                 .withSelectedDate(today);
         showRelevantDates showRelDates = new showRelevantDates();
-        showRelDates.execute(userID);
+
+        //Grabs the dates from the server
+        try {
+            returnedDates = showRelDates.execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        //Converts the dates into the correct format
         List<Date> dates = strToDate(returnedDates);
+
+        //Highlights the dates with an event
         calendar.highlightDates(dates);
     }
 
     public List<Date> strToDate(String inStr){
-        Log.i("TAG", "strToDate: " + inStr);
         String result = "";
         List<Date> newDates = new ArrayList<>();
         Date thisTime = new Date();
@@ -109,8 +120,6 @@ public class MainActivity extends AppCompatActivity
         {
             pe.printStackTrace();
         }
-
-
 
         String aa = "";
         Log.i("TAG", "strToDate: " + newDates.toString());
@@ -210,11 +219,10 @@ public class MainActivity extends AppCompatActivity
             List<Date> userDates = new ArrayList<>();
             HttpURLConnection urlConnection = null;
             String result = "";
-            String UserID = params[0];
 
             try
             {
-                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=2017-03");
+                URL qUrl = new URL("http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=2017-");
 
                 urlConnection = (HttpURLConnection) qUrl.openConnection();
 
@@ -236,6 +244,7 @@ public class MainActivity extends AppCompatActivity
 
                     in.close();
                 }
+                return result;
             }
             catch (MalformedURLException mue)
             {
@@ -245,7 +254,10 @@ public class MainActivity extends AppCompatActivity
             {
                 ioe.printStackTrace();
             }
-            returnedDates = result;
+
+            finally {
+                urlConnection.disconnect();
+            }
             return result;
         }
 
