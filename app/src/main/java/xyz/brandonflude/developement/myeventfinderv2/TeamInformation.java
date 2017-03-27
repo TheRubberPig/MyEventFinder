@@ -1,6 +1,7 @@
 package xyz.brandonflude.developement.myeventfinderv2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -253,6 +254,18 @@ public class TeamInformation extends AppCompatActivity {
             return result;
 
         }
+    }
+
+    //Detects if the back button was pressed and refreshes the main home page
+    @Override
+    public void onBackPressed()
+    {
+        Intent backToMain = new Intent(this, MainActivity.class);
+        //Username doesn't get passed through, this sets it so it says welcome back instead
+        backToMain.putExtra("username", "");
+        backToMain.putExtra("userID", userID);
+        //Return to main page
+        startActivity(backToMain);
     }
 }
 
