@@ -83,7 +83,7 @@ public class DateInformation extends AppCompatActivity {
                     //Shows the data that the server returns in a user friendly fashion
                     if(response.equals("\nfalse"))
                     {
-                        //Show text if the date has no events.
+                        //Show text
                         noEvents.setText("No events to show on this date");
                     }
                     else
