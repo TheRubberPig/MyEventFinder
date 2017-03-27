@@ -72,6 +72,7 @@ public class DateInformation extends AppCompatActivity {
 
         //Sets up list
         showResults = (ListView) findViewById(R.id.dateResults);
+        final TextView noEvents = (TextView)findViewById(R.id.noEventsText);
 
         ////Fetches data from the server
         String url = "http://calendar.brandonflude.xyz/app/services/getFixtures.php?user-id=" + userID + "&date=" + date;
@@ -80,7 +81,14 @@ public class DateInformation extends AppCompatActivity {
             public void onResponse(String response) {
                 try {
                     //Shows the data that the server returns in a user friendly fashion
-                    showJSON(response);
+                    if(response.equals("\nfalse"))
+                    {
+                        noEvents.setText("No events to show on this date");
+                    }
+                    else
+                    {
+                        showJSON(response);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
